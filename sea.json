@@ -1,7 +1,5 @@
 {
-  "main": "package/bundle.js",
-  "output": "package/app.exe",
-  "assets": {
-    "server": "package/server/**/*"
-  }
+  "main": "package/entry.cjs",
+  "output": "package/sea-prep.blob",
+  "disableSentinel": true
 }

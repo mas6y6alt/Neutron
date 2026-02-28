@@ -10,6 +10,7 @@
     "copy-assets": "cpx \"src/server/{templates,static}/**/*.{html,css,js,png,jpg,svg}\" dist/server",
     "start:server": "npm run build && node ./dist/index.js",
     "test:server": "npm run build && node ./dist/index.js --config test/config.yml",
+    "package": "node scripts/compile.js",
     "clean": "rimraf dist package"
   },
   "devDependencies": {
