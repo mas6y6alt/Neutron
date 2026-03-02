@@ -20,8 +20,5 @@ logging:
   file: true
   maxFiles: 14d
 
-masterkey:
-  file: data/masterkey.key
-
 database:
   type: sqlite

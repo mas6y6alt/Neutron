@@ -63,14 +63,6 @@ export class NeutronServer {
                     throw err;
                 }
             }
-
-            this.logger = await createLogger({
-                level: this.config.debug ? "debug" : "info",
-                logsFolder: this.config.logs_folder,
-                console: this.config.logging_console,
-                file: this.config.logging_file,
-                maxFiles: this.config.logging_max_files,
-            });
         } catch (err) {
             if ((err as NodeJS.ErrnoException).code === "ENOENT") {
                 this.config = new NeutronConfig();
@@ -81,13 +73,21 @@ export class NeutronServer {
             }
         }
 
+        this.logger = await createLogger({
+            level: this.config.debug ? "debug" : "info",
+            logsFolder: this.config.logs_folder,
+            console: this.config.logging_console,
+            file: this.config.logging_file,
+            maxFiles: this.config.logging_max_files,
+        });
+
         try {
-            await fs.access(path.join(this.config.data_folder, this.config.masterkey));
-            let base64 = await fs.readFile(path.join(this.config.data_folder, this.config.masterkey), "utf-8");
+            await fs.access(path.join(this.config.data_folder, "masterkey.key"));
+            let base64 = await fs.readFile(path.join(this.config.data_folder, "masterkey.key"), "utf-8");
             this.masterkey = Buffer.from(base64, "base64");
         } catch {
             this.masterkey = crypto.randomBytes(32);
-            await fs.writeFile(path.join(this.config.data_folder, this.config.masterkey), this.masterkey.toString("base64"), "utf-8");
+            await fs.writeFile(path.join(this.config.data_folder, "masterkey.key"), this.masterkey.toString("base64"), "utf-8");
         }
 
         this.logger.info("Starting \""+this.config.database_type+"\" database...");
@@ -134,7 +134,7 @@ export class NeutronServer {
 
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use('/static', express.static(path.join(__dirname, 'public')));
+        this.app.use('/static', express.static(path.join(__dirname, 'static')));
 
         this.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
             const handler = request.url ? this.wsRouteHandlers[request.url] : undefined;

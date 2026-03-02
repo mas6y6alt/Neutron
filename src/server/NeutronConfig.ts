@@ -17,9 +17,6 @@ export class NeutronConfig {
     public logging_file: boolean = true;
     public logging_max_files: string = "14d";
 
-    // master_key
-    public masterkey: string = "masterkey.key";
-
     // ssl options
     public ssl_enabled: boolean = false;
     public ssl_key: string = "";
@@ -31,7 +28,7 @@ export class NeutronConfig {
     public rate_limit_max: number = 100;
 
     // database options
-    public database_type: string = "postgres";
+    public database_type: string = "sqlite";
 
     private content: any = {};
 
@@ -63,8 +60,6 @@ export class NeutronConfig {
         this.logging_console = getPath<boolean>("logging.console", this.logging_console);
         this.logging_file = getPath<boolean>("logging.file", this.logging_file);
         this.logging_max_files = getPath<string>("logging.max_files", this.logging_max_files);
-
-        this.masterkey = getPath<string>("masterkey.file", this.masterkey);
 
         this.ssl_enabled = getPath<boolean>("server.ssl.enabled", this.ssl_enabled);
         this.ssl_key = getPath<string>("server.ssl.key", this.ssl_key);
