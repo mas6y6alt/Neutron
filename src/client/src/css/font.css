@@ -5,7 +5,7 @@
 /* Montserrat Thin */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Thin.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Thin.ttf") format("truetype");
     font-weight: 100;
     font-style: normal;
 }
@@ -13,7 +13,7 @@
 /* Montserrat ExtraLight / UltraLight */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-ExtraLight.ttf") format("truetype");
+    src: url("/src/font/Montserrat-ExtraLight.ttf") format("truetype");
     font-weight: 200;
     font-style: normal;
 }
@@ -21,7 +21,7 @@
 /* Montserrat Light */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Light.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Light.ttf") format("truetype");
     font-weight: 300;
     font-style: normal;
 }
@@ -29,7 +29,7 @@
 /* Montserrat Regular / Book */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Regular.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -37,7 +37,7 @@
 /* Montserrat Medium */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Medium.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Medium.ttf") format("truetype");
     font-weight: 500;
     font-style: normal;
 }
@@ -45,7 +45,7 @@
 /* Montserrat SemiBold */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-SemiBold.ttf") format("truetype");
+    src: url("/src/font/Montserrat-SemiBold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }
@@ -53,7 +53,7 @@
 /* Montserrat Bold */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Bold.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
@@ -61,7 +61,7 @@
 /* Montserrat ExtraBold */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-ExtraBold.ttf") format("truetype");
+    src: url("/src/font/Montserrat-ExtraBold.ttf") format("truetype");
     font-weight: 800;
     font-style: normal;
 }
@@ -69,7 +69,7 @@
 /* Montserrat Black */
 @font-face {
     font-family: "Montserrat";
-    src: url("/assets/font/Montserrat-Black.ttf") format("truetype");
+    src: url("/src/font/Montserrat-Black.ttf") format("truetype");
     font-weight: 900;
     font-style: normal;
 }
