@@ -5,6 +5,6 @@ export class UserPassword {
     @PrimaryColumn("uuid")
     id!: string;
 
-    @Column({ type: "blob" })
-    password!: Buffer;
+    @Column({ type: "varchar", length: 60 })
+    passwordHash!: string;
 }

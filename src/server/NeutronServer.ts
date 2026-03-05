@@ -1,4 +1,6 @@
-import express, {ErrorRequestHandler, NextFunction} from "express";
+import express from "express";
+import cookieParser from "cookie-parser";
+import csurf from "csurf";
 import * as http from "node:http";
 import * as path from "node:path";
 import * as fs from "fs/promises";
@@ -30,7 +32,7 @@ export class NeutronServer {
     public wsRouteHandlers: { [url: string]: (ws: WebSocket, req: IncomingMessage) => void } = {};
     public motd: string = "A Neutron Server";
     public serverTitle: string = "Neutron";
-    private superadminKey: string = "";
+    public superadminKey: string = "";
 
     public static getInstance(): NeutronServer {
         if (!NeutronServer.instance) {
@@ -100,6 +102,22 @@ export class NeutronServer {
 
         this.app = express();
 
+        if (this.config.ssl_enabled) {
+            const key = await fs.readFile(this.config.ssl_key);
+            const cert = await fs.readFile(this.config.ssl_cert);
+
+            this.server = https.createServer(
+                {
+                    key,
+                    cert,
+                },
+                this.app
+            );
+        } else {
+            this.server = http.createServer(this.app);
+        }
+
+        // 1. Security first
         this.app.use(helmet({
             contentSecurityPolicy: {
                 directives: {
@@ -119,41 +137,46 @@ export class NeutronServer {
             this.app.use(limiter);
         }
 
-        if (this.config.ssl_enabled) {
-            const key = await fs.readFile(this.config.ssl_key);
-            const cert = await fs.readFile(this.config.ssl_cert);
-
-            this.server = https.createServer(
-                {
-                    key,
-                    cert,
-                },
-                this.app
-            );
-        } else {
-            this.server = http.createServer(this.app);
-        }
-
+// 2. Body parsing
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use('/public', express.static(path.join(__dirname, '../client/public')));
-        this.app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 
+// 3. Cookie & CSRF
+        this.app.use(cookieParser());
+        this.app.use(csurf({ cookie: true }));
+        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            if (err.code !== 'EBADCSRFTOKEN') return next(err);
+            res.status(403).send({ detail: "Invalid CSRF token" });
+        });
+
+// 4. Static files
+        const proxyPath = this.config.proxy_base_path;
+        const staticRouter = express.Router();
+        staticRouter.use('/public', express.static(path.join(__dirname, '../client/public')));
+        staticRouter.use('/assets', express.static(path.join(__dirname, '../client/assets')));
+        this.app.use(proxyPath, staticRouter);
+
+// 5. Custom routes
+        this.app.use(proxyPath, require("./routes/main"));
+
+// 6. WebSocket upgrade handling
         this.server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-            const handler = request.url ? this.wsRouteHandlers[request.url] : undefined;
-
+            const path = new URL(request.url!, 'http://dummy').pathname;
+            const handler = this.wsRouteHandlers[path];
             if (!handler) {
                 socket.destroy();
                 return;
             }
-
-            this.wss.handleUpgrade(request, socket, head, (ws: WebSocket, _req: IncomingMessage) => {
-                handler(ws, request);
-            });
+            this.wss.handleUpgrade(request, socket, head, (ws) => handler(ws, request));
         });
 
-        require("./routes/main")
-        require("./error_routes")
+// 7. 404 error
+        const basePath = proxyPath.replace(/\/+$/, ""); // remove trailing slash
+        this.app.use(`${basePath}/*splat`, async (req, res) => {
+            res.status(404).send({
+                detail: "Not Found",
+            });
+        });
 
         if (await Database.getDataSource().getRepository(User).count() === 0) {
             this.firstStart = true;

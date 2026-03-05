@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\mel02\\WebstormProjects\\Neutron\\logs\\.dae5626f9808bc0a8045c3bb8d2a87bbebc67072-audit.json",
+    "files": [
+        {
+            "date": 1772680763699,
+            "name": "C:\\Users\\mel02\\WebstormProjects\\Neutron\\logs\\2026-03-04.log",
+            "hash": "ea6a1d2e478bd49b30fe1e11647db37013a5ed0601966a9f038a312afebce8df"
+        }
+    ],
+    "hashType": "sha256"
+}

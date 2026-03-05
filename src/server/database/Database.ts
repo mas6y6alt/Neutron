@@ -4,6 +4,9 @@ import { NeutronConfig } from "../NeutronConfig";
 import { User } from "./entities/User";
 import { UserPassword } from "./entities/UserPassword";
 import path from "node:path";
+import {UserTOTP} from "./entities/UserTOTP";
+
+const entities = [User, UserPassword, UserTOTP];
 
 export class Database {
     private static instance: Database;
@@ -36,7 +39,7 @@ export class Database {
                 password: config.getPathOrDefault("database.password", ""),
                 database: config.getPathOrDefault("database.database", "neutron"),
                 ssl: config.getPathOrDefault("database.ssl", false) ? { rejectUnauthorized: false } : false,
-                entities: [User, UserPassword],
+                entities: entities,
                 synchronize: true,
             };
         } else if (dbType === "mysql") {
@@ -47,7 +50,7 @@ export class Database {
                 username: config.getPathOrDefault("database.user", "neutron"),
                 password: config.getPathOrDefault("database.password", ""),
                 database: config.getPathOrDefault("database.database", "neutron"),
-                entities: [User, UserPassword],
+                entities: entities,
                 synchronize: true,
             };
         } else if (dbType === "sqlite") {
@@ -58,7 +61,7 @@ export class Database {
             options = {
                 type: "sqlite",
                 database: dbPath,
-                entities: [User, UserPassword],
+                entities: entities,
                 synchronize: true,
             };
         } else {

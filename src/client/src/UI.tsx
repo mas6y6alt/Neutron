@@ -104,6 +104,20 @@ export const Entry = forwardRef<HTMLInputElement, EntryProps>(
             <input
                 className="UIEntry"
                 ref={ref}
+                type="text"
+                {...props}
+            />
+        );
+    }
+);
+
+export const PasswordEntry = forwardRef<HTMLInputElement, EntryProps>(
+    (props, ref) => {
+        return (
+            <input
+                className="UIEntry"
+                ref={ref}
+                type="password"
                 {...props}
             />
         );
@@ -144,17 +158,26 @@ export function Switch({ checked, onChange, disabled }: SwitchProps) {
     );
 }
 
-export function LoadingModal() {
+export const LoadingModal = forwardRef<ModalHandle>((props, ref) => {
     const modal = useRef<ModalHandle>(null);
+
+    useEffect(() => {
+        if (ref) {
+            if (typeof ref === "function") ref(modal.current);
+            else (ref as React.RefObject<ModalHandle | null>).current = modal.current;
+        }
+    }, [ref]);
 
     useEffect(() => {
         requestAnimationFrame(() => modal.current?.showModal());
     }, []);
 
-    return (<Modal ref={modal}>
-        <LoadingCircle />
-    </Modal>);
-}
+    return (
+        <Modal ref={modal}>
+            <LoadingCircle />
+        </Modal>
+    );
+});
 
 export const NotificationContainer = forwardRef<NotificationHandle>((props, ref) => {
     const [notifications, setNotifications] = useState<(NotificationProps & { closing?: boolean })[]>([]);

@@ -1,0 +1,27 @@
+[21:19:23] INFO: Starting "sqlite" database...
+[21:19:23] INFO: Database initialized
+[21:19:23] INFO: 
+=======================================================
+FIRST TIME SETUP: Superadmin Key Generated
+-------------------------------------------------------
+Your server's user database is empty (first-time startup).
+
+🔑  SUPERADMIN KEY: 62ba8e7872728df8338ed715
+
+⚠️  IMPORTANT:
+- This key is **one-time use only**
+- DO NOT SHARE THIS KEY WITH ANYONE
+
+=======================================================
+
+[21:19:23] WARN: 
+=======================================================
+⚠️  WARNING: SSL is NOT enabled!
+-------------------------------------------------------
+Your Neutron server is running without SSL. This means:
+- All traffic, including chat messages, is sent in plain text
+- Your server is vulnerable to eavesdropping or tampering
+
+=======================================================
+            
+[21:19:23] INFO: Neutron Server running at http://0.0.0.0:3000

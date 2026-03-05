@@ -11,7 +11,7 @@ import {
 import {SetupInit} from "./UI/setup";
 import "./css/Font.css";
 import "./css/App.css";
-import {animationCooldown, sleep} from "./utils";
+import {animationCooldown, fetchWithCsrf, sleep} from "./utils";
 
 export const notificationRef = createRef<NotificationHandle>();
 export const containerRef = createRef<ModalContainerHandle>();
@@ -25,7 +25,7 @@ function App() {
                 <LoadingModal />
             );
 
-            let server_status = await (await fetch("/api/status")).json();
+            let server_status = await (await fetchWithCsrf("/api/status")).json();
             if (!(server_status.ssl_enabled)) {
                 notificationRef.current?.add(
                     {
