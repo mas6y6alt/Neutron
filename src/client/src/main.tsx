@@ -4,5 +4,5 @@ import App, {backgroundRef} from './App'
 import {BackgroundComponent} from "./UI";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <><BackgroundComponent ref={backgroundRef}/><App/></>
+    <App/>
 )

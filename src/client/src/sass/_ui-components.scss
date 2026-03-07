@@ -31,18 +31,11 @@
 
 .UIButton {
   outline: none;
-  border: 1px solid var(--border-color);
   border-radius: $border-radius-lg;
   padding: ($spacer * 0.5) ($spacer * 1.25);
-  color: var(--text-color);
-  background-color: var(--background-color);
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
   font-weight: $font-weight-medium;
-}
-
-.UIButton:hover {
-  background-color: var(--border-color);
 }
 
 .UIButton:active {

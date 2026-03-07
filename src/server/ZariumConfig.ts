@@ -59,7 +59,7 @@ export class ZariumConfig {
         this.debug = getPath<boolean>("server.debug", this.debug);
         this.host = getPath<string>("server.host", this.host);
 
-        this.data_folder = getPath<string>("Zarium.data_folder", this.data_folder);
+        this.data_folder = getPath<string>("zarium.data_folder", this.data_folder);
 
         this.logs_folder = getPath<string>("logging.logs_folder", this.logs_folder);
         this.logging_console = getPath<boolean>("logging.console", this.logging_console);

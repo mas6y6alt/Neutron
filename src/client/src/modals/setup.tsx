@@ -1,7 +1,8 @@
 import {Button, LoadingModal, Modal, ModalHandle, Entry, PasswordEntry} from "../UI";
 import React, {createRef, useRef} from "react";
-import {containerRef, notificationRef} from "../App";
+import {modalContainerRef, notificationRef} from "../App";
 import {animationCooldown, fetchWithCsrf} from "../utils";
+import {renderApplication} from "../MainApplication";
 
 export function SetupInit() {
     const entry = useRef<HTMLInputElement>(null);
@@ -23,9 +24,9 @@ export function SetupInit() {
         modal.current?.hideModal();
         await animationCooldown();
         const loadingModalRef = createRef<ModalHandle>();
-        containerRef?.current?.set(<LoadingModal ref={loadingModalRef}/>);
+        modalContainerRef?.current?.set(<LoadingModal ref={loadingModalRef}/>);
 
-        let res = (await fetchWithCsrf("/api/check-superadmin-key", {
+        let res = (await fetchWithCsrf("/api/setup/check-superadmin-key", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -39,7 +40,7 @@ export function SetupInit() {
         if (res.ok) {
             loadingModalRef.current?.hideModal();
             await animationCooldown();
-            containerRef?.current?.set(<SetupAdminAccountCreation superAdminKey={key}/>);
+            modalContainerRef?.current?.set(<SetupAdminAccountCreation superAdminKey={key}/>);
         } else {
             loadingModalRef.current?.hideModal();
             await animationCooldown();
@@ -48,7 +49,7 @@ export function SetupInit() {
                 content: data.detail,
                 type: "error"
             });
-            containerRef?.current?.set(<SetupInit/>);
+            modalContainerRef?.current?.set(<SetupInit/>);
         }
     }
 
@@ -117,9 +118,9 @@ export function SetupAdminAccountCreation({superAdminKey}: SetupAdminAccountCrea
         modal.current?.hideModal();
         await animationCooldown();
         const loadingModalRef = createRef<ModalHandle>();
-        containerRef?.current?.set(<LoadingModal ref={loadingModalRef}/>);
+        modalContainerRef?.current?.set(<LoadingModal ref={loadingModalRef}/>);
 
-        let res = (await fetchWithCsrf("/api/create-superadmin", {
+        let res = (await fetchWithCsrf("/api/setup/create-superadmin", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -131,6 +132,17 @@ export function SetupAdminAccountCreation({superAdminKey}: SetupAdminAccountCrea
                 superAdminKey: superAdminKey
             })
         }));
+
+        if (!res.ok) {
+            notificationRef.current?.add({
+                title: "Error",
+                content: (await res.json()).detail,
+                type: "error"
+            })
+        }
+
+        modalContainerRef.current?.close();
+        await renderApplication();
     }
 
     return (

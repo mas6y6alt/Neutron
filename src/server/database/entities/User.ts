@@ -5,6 +5,7 @@ import {ZariumServer} from "../../ZariumServer";
 import bcrypt, {hash} from "bcrypt";
 import {parseTime} from "../../utils";
 import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
 @Entity("users")
 export class User {
@@ -76,7 +77,7 @@ export class User {
         return bcrypt.compare(password, this.password);
     }
 
-    async createSession() {
+    async createSession(userAgent?: string) {
         const userSessionRepo = ZariumServer.getInstance().database.dataSource.getRepository(UserSession);
 
         const refreshToken = crypto.randomBytes(32).toString("hex");
@@ -85,7 +86,9 @@ export class User {
         const session = userSessionRepo.create({
             userId: this.id,
             refreshTokenHash: refreshTokenHash,
+            refreshTokenKey: uuidv4(),
             expiresAt: new Date(Date.now() + parseTime(ZariumServer.getInstance().REFRESH_TOKEN_EXPIRATION_TIME)),
+            userAgent: userAgent,
         });
 
         await userSessionRepo.save(session);

@@ -40,7 +40,7 @@ safeRoute(server.app, '/api/auth/password_auth', 'post', async (req: SafeRequest
     if (!user) return res.status(401).json({ detail: "Invalid credentials" });
 
     if (!(await user.checkPassword(req.body.password))) return res.status(401).json({ detail: "Invalid credentials" });
-    const session = await user.createSession();
+    const session = await user.createSession(req.headers["user-agent"]);
     const access_token = await (await userSessionRepo.findOne({
         where: {
             id: session.id
@@ -54,7 +54,14 @@ safeRoute(server.app, '/api/auth/password_auth', 'post', async (req: SafeRequest
         maxAge: parseTime(ZariumServer.getInstance().ACCESS_TOKEN_EXPIRATION_TIME)
     });
 
-    res.cookie('refresh-token', `${session.refreshKey}:${session.refreshToken}`, {
+    res.cookie('refresh-token-key', session.refreshKey, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: parseTime(ZariumServer.getInstance().REFRESH_TOKEN_EXPIRATION_TIME)
+    });
+
+    res.cookie('refresh-token-val', session.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -68,14 +75,17 @@ safeRoute(server.app, '/api/auth/password_auth', 'post', async (req: SafeRequest
 
 safeRoute(server.app, '/api/auth/refresh', 'post', async (req: SafeRequest,res) => {
     const userSessionRepo = ZariumServer.getInstance().database.dataSource.getRepository(UserSession);
-    if (!req.cookies?.["refresh-token"]) {
+    const refreshTokenKey = req.cookies?.["refresh-token-key"];
+    const refreshTokenVal = req.cookies?.["refresh-token-val"];
+
+    if (!refreshTokenKey || !refreshTokenVal) {
         res.status(401).send({ detail: "Invalid refresh token" });
         return;
     }
 
     const session = await userSessionRepo.findOne({
         where: {
-            refreshTokenKey: req.cookies?.["refresh-token"]?.split(":")[0],
+            refreshTokenKey: refreshTokenKey,
         }
     });
 
@@ -84,12 +94,38 @@ safeRoute(server.app, '/api/auth/refresh', 'post', async (req: SafeRequest,res) 
         return;
     }
 
-    const access_token = await session?.createAccessToken()
+    if (!session.isValid()) {
+        res.status(401).send({ detail: "Invalid refresh token" });
+        return;
+    }
+
+    if (!await session.checkSession(refreshTokenVal)) {
+        res.status(401).send({ detail: "Invalid refresh token" });
+        return;
+    }
+
+    const access_token = await (await userSessionRepo.findOne({
+        where: {
+            id: session.id
+        }
+    }))?.createAccessToken()
+
+    res.cookie('access-token', access_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: parseTime(ZariumServer.getInstance().ACCESS_TOKEN_EXPIRATION_TIME)
+    });
+
+    res.send({
+        detail: "Refreshed session"
+    });
 })
 
 safeRoute(server.app, '/api/auth/force-logout', 'post', async (req: SafeRequest,res) => {
     res.clearCookie('access-token');
-    res.clearCookie('refresh-token');
+    res.clearCookie('refresh-token-key');
+    res.clearCookie('refresh-token-val');
 
     res.send({
         detail: "Cleared session cookies"
@@ -98,14 +134,19 @@ safeRoute(server.app, '/api/auth/force-logout', 'post', async (req: SafeRequest,
 
 safeRoute(server.app, '/api/auth/logout', 'post', async (req: SafeRequest,res) => {
     const userSessionRepo = ZariumServer.getInstance().database.dataSource.getRepository(UserSession);
-    await (await userSessionRepo.findOne({
-        where: {
-            refreshTokenKey: req.cookies?.["refresh-token"]?.split(":")[0],
-        }
-    }))?.revoke()
+    const refreshTokenKey = req.cookies?.["refresh-token-key"];
+
+    if (refreshTokenKey) {
+        await (await userSessionRepo.findOne({
+            where: {
+                refreshTokenKey: refreshTokenKey,
+            }
+        }))?.revoke()
+    }
 
     res.clearCookie('access-token');
-    res.clearCookie('refresh-token');
+    res.clearCookie('refresh-token-key');
+    res.clearCookie('refresh-token-val');
 
     res.send({
         detail: "Logged out"

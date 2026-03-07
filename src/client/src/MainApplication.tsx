@@ -1,12 +1,12 @@
 import {animationCooldown, fetchWithCsrf} from "./utils";
 import {SetupInit} from "./modals/setup";
 import React from "react";
-import {containerRef, notificationRef} from "./App";
+import {modalContainerRef, notificationRef} from "./App";
 import {LoadingModal} from "./UI";
 import {LoginInit} from "./modals/login";
 
 export async function MainApplication() {
-    containerRef.current?.set(
+    modalContainerRef.current?.set(
         <LoadingModal />
     );
 
@@ -25,26 +25,36 @@ export async function MainApplication() {
 
     await animationCooldown();
     if (server_status.firstStart == true) {
-        containerRef.current?.set(<SetupInit />);
+        modalContainerRef.current?.set(<SetupInit />);
     } else {
-        await handleLogin(server_status);
+        if (!await authCheck()) {
+            modalContainerRef.current?.set(<LoginInit motd={server_status.motd} version={server_status.version}/>);
+        } else {
+            await animationCooldown();
+            modalContainerRef.current?.close();
+            await renderApplication();
+        }
     }
 }
 
-export async function handleLogin(server_status: any) {
-    const res = await fetchWithCsrf("/api/verify_login", {
+export async function authCheck() {
+    const res = await fetchWithCsrf("/api/auth/verify", {
         method: "POST"
     });
 
     if (!res.ok) {
-        if (res.status === 401) {
-            containerRef.current?.set(<LoginInit title={server_status.serverTitle} motd={server_status.motd} version={server_status.version} />);
+        const res = await fetchWithCsrf("/api/auth/refresh", {
+            method: "POST"
+        });
+        if (!res.ok) {
+            return false;
         } else {
-            console.error(res);
-            throw new Error("Failed to verify login");
+            console.log("Refreshed session.");
         }
-        return;
     }
+    return true;
+}
 
-    // if passed then actually render application
+export async function renderApplication() {
+
 }

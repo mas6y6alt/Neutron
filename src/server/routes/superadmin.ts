@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import {UserSession} from "../database/entities/UserSessions";
 const server:ZariumServer = ZariumServer.getInstance();
 
-safeRoute(server.app, '/api/check-superadmin-key', 'post', async (req,res) => {
+safeRoute(server.app, '/api/setup/check-superadmin-key', 'post', async (req,res) => {
     if (!requireJson(req,res)) return;
     if (!(server.firstStart)) {
         res.send({
@@ -28,7 +28,7 @@ safeRoute(server.app, '/api/check-superadmin-key', 'post', async (req,res) => {
     }
 });
 
-safeRoute(server.app, '/api/create-superadmin', 'post', async (req,res) => {
+safeRoute(server.app, '/api/setup/create-superadmin', 'post', async (req,res) => {
     if (!requireJson(req,res)) return;
 
     if (!(server.firstStart)) {
@@ -59,7 +59,7 @@ safeRoute(server.app, '/api/create-superadmin', 'post', async (req,res) => {
 
         server.firstStart = false;
 
-        const session = await user.createSession();
+        const session = await user.createSession(req.headers["user-agent"]);
         const access_token = await (await userSessionRepo.findOne({
             where: {
                 id: session.id
@@ -73,12 +73,22 @@ safeRoute(server.app, '/api/create-superadmin', 'post', async (req,res) => {
             maxAge: parseTime(ZariumServer.getInstance().ACCESS_TOKEN_EXPIRATION_TIME)
         });
 
-        res.cookie('refresh-token', session.refreshToken, {
+        res.cookie('refresh-token-key', session.refreshKey, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
             maxAge: parseTime(ZariumServer.getInstance().REFRESH_TOKEN_EXPIRATION_TIME)
         });
+
+        res.cookie('refresh-token-val', session.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: parseTime(ZariumServer.getInstance().REFRESH_TOKEN_EXPIRATION_TIME)
+        });
+
+        ZariumServer.getInstance().logger.info(`New SuperAdmin account with the username \"${user.username}\" has been registered.`);
+        ZariumServer.getInstance().logger.info(`Setup mode disabled.`);
 
         return res.send({
             detail: "Superadmin account created.",

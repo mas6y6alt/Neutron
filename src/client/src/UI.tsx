@@ -6,7 +6,7 @@ import React, {
     useState,
     JSX,
     useRef,
-    useEffect
+    useEffect, CSSProperties
 } from "react"
 
 export interface ModalContainerHandle {
@@ -102,6 +102,7 @@ export const Entry = forwardRef<HTMLInputElement, EntryProps>(
         return (
             <input
                 className="UIEntry"
+                style={{display: 'block'}}
                 ref={ref}
                 type="text"
                 {...props}
@@ -115,6 +116,7 @@ export const PasswordEntry = forwardRef<HTMLInputElement, EntryProps>(
         return (
             <input
                 className="UIEntry"
+                style={{display: 'block'}}
                 ref={ref}
                 type="password"
                 {...props}
@@ -123,19 +125,35 @@ export const PasswordEntry = forwardRef<HTMLInputElement, EntryProps>(
     }
 );
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    color?:
+        | 'primary'
+        | 'secondary'
+        | 'success'
+        | 'danger'
+        | 'warning'
+        | 'info'
+        | 'light'
+        | 'dark'
+        | 'link';
+    style?: CSSProperties;
+};
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    (props, ref) => {
+    ({ color = 'primary', className, style, ...props }, ref) => {
+        const colorClass = `btn-${color}`;
+
         return (
             <button
-                className="UIButton"
                 ref={ref}
+                className={`btn UIButton ${colorClass} ${className ?? ''}`}
+                style={style}
                 {...props}
             />
         );
     }
-);
+)
 
 interface SwitchProps {
     checked?: boolean;

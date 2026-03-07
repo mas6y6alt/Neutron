@@ -32,7 +32,6 @@ export class ZariumServer {
     public wss = new WebSocketServer({ noServer: true });
     public wsRouteHandlers: { [url: string]: (ws: WebSocket, req: IncomingMessage) => void } = {};
     public motd: string = "A Zarium Server";
-    public serverTitle: string = "Zarium";
     public superadminKey: string = "";
 
     public ACCESS_TOKEN_SECRET: string = crypto.randomBytes(32).toString("hex");

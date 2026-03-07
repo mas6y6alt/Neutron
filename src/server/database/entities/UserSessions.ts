@@ -20,7 +20,10 @@ export class UserSession {
     @Column({ unique: true })
     refreshTokenHash!: string;
 
-    @Generated("uuid")
+    @Column({
+        type: "uuid",
+        unique: true
+    })
     refreshTokenKey!: string;
 
     @Column({ type: "datetime" })
@@ -55,9 +58,13 @@ export class UserSession {
         } as UserJwtPayload, ZariumServer.getInstance().ACCESS_TOKEN_SECRET, { expiresIn: ZariumServer.getInstance().ACCESS_TOKEN_EXPIRATION_TIME as any});
     }
 
-    async isValid() {
+    isValid() {
         if (this.revoked) return false;
         return this.expiresAt >= new Date();
+    }
+
+    async checkSession(token: string) {
+        return bcrypt.compare(token, this.refreshTokenHash);
     }
 
     async checkRefreshToken(refreshToken: string) {
