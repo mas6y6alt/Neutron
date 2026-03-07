@@ -36,8 +36,7 @@ export class NeutronServer {
     public superadminKey: string = "";
 
     public ACCESS_TOKEN_SECRET: string = crypto.randomBytes(32).toString("hex");
-    public ACCESS_TOKEN_EXPIRATION_TIME: string = "15m";
-    public REFRESH_TOKEN_SECRET: string = crypto.randomBytes(32).toString("hex");
+    public ACCESS_TOKEN_EXPIRATION_TIME: string = "10m";
     public REFRESH_TOKEN_EXPIRATION_TIME: string = "7d";
 
     public static getInstance(): NeutronServer {
@@ -105,13 +104,6 @@ export class NeutronServer {
             this.ACCESS_TOKEN_SECRET = await fs.readFile(path.join(this.config.data_folder,"access_token.key"), "utf-8");
         } catch {
             await fs.writeFile(path.join(this.config.data_folder,"access_token.key"), this.ACCESS_TOKEN_SECRET, "utf-8");
-        }
-
-        try {
-            await fs.access(path.join(this.config.data_folder,"refresh_token.key"));
-            this.REFRESH_TOKEN_SECRET = await fs.readFile(path.join(this.config.data_folder,"refresh_token.key"), "utf-8");
-        } catch {
-            await fs.writeFile(path.join(this.config.data_folder,"refresh_token.key"), this.REFRESH_TOKEN_SECRET, "utf-8");
         }
 
         this.REFRESH_TOKEN_EXPIRATION_TIME = this.config.refresh_token_expiration

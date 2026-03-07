@@ -2,11 +2,10 @@ import "reflect-metadata";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { NeutronConfig } from "../NeutronConfig";
 import { User } from "./entities/User";
-import { UserPassword } from "./entities/UserPassword";
 import path from "node:path";
 import {UserTOTP} from "./entities/UserTOTP";
 
-const entities = [User, UserPassword, UserTOTP];
+const entities = [User, UserTOTP];
 
 export class Database {
     private static instance: Database;

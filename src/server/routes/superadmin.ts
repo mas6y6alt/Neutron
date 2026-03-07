@@ -44,13 +44,13 @@ safeRoute(server.app, '/api/create-superadmin', 'post', async (req,res) => {
         }
 
         const userRepo = NeutronServer.getInstance().database.dataSource.getRepository(User);
-        const passwordHash = await bcrypt.hash(req.body.password, 12);
+        const passwordHash = await bcrypt.hash(req.body.password, 10);
         const user = userRepo.create({
             username: req.body.username,
             displayname: req.body.displayName,
-            admin: true,
+            roles: "",
             superadmin: true,
-            password: { password: passwordHash },
+            password: passwordHash,
         });
 
         await userRepo.save(user);

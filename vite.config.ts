@@ -15,4 +15,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src/client/src'),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: [
+          'import',
+          'mixed-decls',
+          'color-functions',
+          'global-builtin',
+          'if-function'
+        ],
+      },
+    },
+  },
 });
